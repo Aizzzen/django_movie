@@ -47,13 +47,13 @@ class Movie(models.Model):
     title = models.CharField("Название", max_length=100)
     tagLine = models.CharField("Слоган", max_length=100, default="")
     description = models.TextField("Описание")
-    poster = models.ImageField("Постер", upload_to="movies/*")
+    poster = models.ImageField("Постер", upload_to="movies/")
     year = models.PositiveIntegerField("Дата выхода", default=2023)
     country = models.CharField("Страна", max_length=30)
     directors = models.ManyToManyField(Actor, verbose_name="режиссер", related_name="film_director") # verbose_name -  для явной передачи имени поля
     actors = models.ManyToManyField(Actor, verbose_name="актеры", related_name="film_actor") # related_name - имя используемое для отношения от связываемого объекта
     genre = models.ManyToManyField(Genre, verbose_name="жанры")
-    premiere = models.DateTimeField("Премьера", default=date.today)
+    premiere = models.DateField("Премьера", default=date.today)
     budget = models.PositiveIntegerField("Бюджет", default=0, help_text="указывать сумму в долларах")
     fees_in_usa = models.PositiveIntegerField("Сборы в США", default=0, help_text="указывать сумму в долларах")
     fees_in_world = models.PositiveIntegerField("Сборы в мире", default=0, help_text="указывать сумму в долларах")
@@ -97,7 +97,7 @@ class RatingStar(models.Model):
 class Rating(models.Model):
     ip = models.CharField("IP адрес", max_length=15)
     star = models.ForeignKey(RatingStar, verbose_name="звезда", on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, verbose_name="фильм", on_delete=models.CharField)
+    movie = models.ForeignKey(Movie, verbose_name="фильм", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.star} - {self.movie}"
