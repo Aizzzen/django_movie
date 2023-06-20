@@ -22,10 +22,8 @@
                             <h5 class="editContent"></h5>
                             <ul>
                                 <li style="list-style: none"><span><b>Год:</b> {{ movie.year }}</span></li>
-                                <li style="list-style: none"><span><b>Страна:</b> {{ movie.country }}</span>
-                                </li>
-                                <li style="list-style: none"><span><b>Слоган:</b> «{{ movie.tagLine }}»</span>
-                                </li>
+                                <li style="list-style: none"><span><b>Страна:</b> {{ movie.country }}</span></li>
+                                <li style="list-style: none"><span><b>Слоган:</b> «{{ movie.tagLine }}»</span></li>
                                 <li style="list-style: none">
                                     <span><b>Режиссер:</b>
                                         {% for director in movie.directors.all %}

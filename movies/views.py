@@ -3,7 +3,7 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 from .forms import AddReviewForm
-from .models import Movie
+from .models import Movie, Category
 
 
 # class MoviesView(View):
@@ -25,10 +25,22 @@ class MoviesView(ListView):
     # получится movie_list
     # template_name = "movies/movie_list.html"
 
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! - вместо дублирования кода сделаем movie_tag и передадим в header как categories
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     context['categories'] = Category.objects.all()
+    #     return context
+
 
 class MoviesDetailView(DetailView):
     model = Movie
     slug_field = "url"
+
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! - вместо дублирования кода сделаем movie_tag и передадим в header как categories
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     context['categories'] = Category.objects.all()
+    #     return context
 
 
 class AddReview(View):
