@@ -1,9 +1,10 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import ListView, DetailView
 
 from .forms import AddReviewForm
-from .models import Movie, Category, Actor
+from .models import Movie, Category, Actor, Genre
 
 
 # class MoviesView(View):
@@ -18,7 +19,16 @@ from .models import Movie, Category, Actor
 #         return render(request, "movies/movie_detail.html", {"movie": movie})
 
 
-class MoviesView(ListView):
+# для передачи данных в шаблон без использования get_context_data
+class GenreYear:
+    def get_genres(self):
+        return Genre.objects.all()
+
+    def get_years(self):
+        return Movie.objects.filter(draft=False).values("year") # .values/values_list("year") - указываем только то поле, которое хочу забрать
+
+
+class MoviesView(GenreYear, ListView):
     model = Movie
     queryset = Movie.objects.filter(draft=False)
     # Django самостоятельно отрисует шаблон, взяв имя модели и добавив _list (т.к. ListView)
@@ -32,7 +42,7 @@ class MoviesView(ListView):
     #     return context
 
 
-class MoviesDetailView(DetailView):
+class MoviesDetailView(GenreYear, DetailView):
     model = Movie
     slug_field = "url"
 
@@ -43,7 +53,7 @@ class MoviesDetailView(DetailView):
     #     return context
 
 
-class AddReview(View):
+class AddReview(GenreYear, View):
     def post(self, request, pk):
         # при post запросе объект request имеет массив передаваемых параметров POST
         # forms - Формы - используются для валидации
@@ -61,7 +71,20 @@ class AddReview(View):
         return redirect(movie.get_absolute_url())
 
 
-class ActorView(DetailView):
+class ActorView(GenreYear, DetailView):
     model = Actor
     template_name = 'movies/actor.html'
     slug_field = 'name' # поле по которому будем искать актера
+
+
+class FormMoviesView(GenreYear, ListView):
+    def get_queryset(self):
+        queryset = Movie.objects.filter(
+            # данный фильтр работает только если выбрать оба условия, т.к. , здесь означает И
+            # year__in=self.request.GET.getlist('year'), genre__in=self.request.GET.getlist('genre')
+
+            # чтобы использовать ИЛИ нужно применить метод Q + |
+            Q(year__in=self.request.GET.getlist('year')) |
+            Q(genre__in=self.request.GET.getlist('genre'))
+        )
+        return queryset
