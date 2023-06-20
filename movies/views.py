@@ -41,6 +41,8 @@ class AddReview(View):
         movie = Movie.objects.get(id=pk)
         if form.is_valid():
             form = form.save(commit=False) # останавливаем сохранение объекта для его дополнения
+            if request.POST.get('parent', None):
+                form.parent_id = int(request.POST.get('parent'))
             # form.movie_id = pk
             form.movie = movie
             form.save() # ОБЯЗАТЕЛЬНО СОХРАНЯТЬ В КОНЦЕ
