@@ -3,7 +3,7 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 from .forms import AddReviewForm
-from .models import Movie, Category
+from .models import Movie, Category, Actor
 
 
 # class MoviesView(View):
@@ -59,3 +59,9 @@ class AddReview(View):
             form.movie = movie
             form.save() # ОБЯЗАТЕЛЬНО СОХРАНЯТЬ В КОНЦЕ
         return redirect(movie.get_absolute_url())
+
+
+class ActorView(DetailView):
+    model = Actor
+    template_name = 'movies/actor.html'
+    slug_field = 'name' # поле по которому будем искать актера
