@@ -1,7 +1,18 @@
 from django.contrib import admin
+from django import forms
 from django.utils.safestring import mark_safe
 
 from .models import Category, Actor, Genre, Movie, MovieShots, RatingStar, Rating, Reviews
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+
+
+# чтобы наш виджет мог импортировать изображения используем...
+class MovieAdminForm(forms.ModelForm):
+    description = forms.CharField(label="Описание", widget=CKEditorUploadingWidget())
+
+    class Meta:
+        model = Movie
+        fields = "__all__"
 
 
 # конфиг-я полей отображаемых в админке
@@ -40,11 +51,13 @@ class MovieAdmin(admin.ModelAdmin):
     list_filter = ("category", "year", )
     search_fields = ("title", "category__name", )
     inlines = [MovieShotsInline, ReviewInline] # FK, M2M - для вывод всех отзывов к фильму
+    form = MovieAdminForm
     save_on_top = True # панель сохранения наверху
     save_as = True # удобно при создании новых записей
     list_editable = ("draft", ) # поля которые можно изменять сразу у нескольких объектов одновременно
     # fields = (("actors", "directors", "genre", ), ) # группируем поля в строку, + убрать лишние поля
     # + 1 поля для группировки полей
+    actions = ['unpublish', 'publish']
     readonly_fields = ("get_image", )
     fieldsets = (
         # группы полей можно давать имена и скрывать их
@@ -75,6 +88,28 @@ class MovieAdmin(admin.ModelAdmin):
 
     get_image.short_description = "Постер"
 
+    # пишем экшены для админки
+    def unpublish(self, request, queryset):
+        row_update = queryset.update(draft=True)
+        if row_update == 1:
+            message_bit = '1 запись была обновлена'
+        else:
+            message_bit = f'{row_update} записей были обновлены'
+        self.message_user(request, f"{message_bit}")
+
+    def publish(self, request, queryset):
+        row_update = queryset.update(draft=False)
+        if row_update == 1:
+            message_bit = '1 запись была обновлена'
+        else:
+            message_bit = f'{row_update} записей были обновлены'
+        self.message_user(request, f"{message_bit}")
+
+    publish.short_description = "Опубликовать"
+    publish.allowed_permissions = ("change", )
+
+    unpublish.short_description = "Снять с публикации"
+    unpublish.allowed_permissions = ("change", )
 
 @admin.register(Reviews)
 class ReviewsAdmin(admin.ModelAdmin):
